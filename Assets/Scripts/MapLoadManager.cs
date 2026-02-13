@@ -11,11 +11,7 @@ using UnityEditor;
 
 public class MapLoadManager : MonoBehaviour
 {
-    //  public Tilemap tilemap;
-    //  public List<CustomTile> tiles = new List<CustomTile>();
     private string _mapName;
-    // public TileBase HorizontalToggleTile;
-    //  public TileBase VerticalToggleTile;
 
     [SerializeField]
     private GameObject _toggle;
@@ -28,8 +24,63 @@ public class MapLoadManager : MonoBehaviour
 
     public void Start()
     {
-        //   AssignMapName("test2");
-        //  LoadMap();
+        var startMap = @"{
+    ""name"": ""map"",
+    ""tiles"": [
+        ""2"",
+        ""1"",
+        ""1"",
+        ""1"",
+        ""1"",
+        ""1"",
+        ""1"",
+        ""3""
+    ],
+    ""positions"": [
+        {
+            ""x"": -7,
+            ""y"": 1,
+            ""z"": 0
+        },
+        {
+            ""x"": -6,
+            ""y"": 1,
+            ""z"": 0
+        },
+        {
+            ""x"": -4,
+            ""y"": 1,
+            ""z"": 0
+        },
+        {
+            ""x"": -2,
+            ""y"": 1,
+            ""z"": 0
+        },
+        {
+            ""x"": 0,
+            ""y"": 1,
+            ""z"": 0
+        },
+        {
+            ""x"": 2,
+            ""y"": 1,
+            ""z"": 0
+        },
+        {
+            ""x"": 4,
+            ""y"": 1,
+            ""z"": 0
+        },
+        {
+            ""x"": 5,
+            ""y"": 1,
+            ""z"": 0
+        }
+    ]
+}";
+
+        LoadMap(startMap);
     }
     public void AssignMapName(string mapName)
     {
@@ -38,7 +89,6 @@ public class MapLoadManager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        //  LoadMap();
     }
 
     // Called by a UI Button. Opens a file picker in the Editor; in builds shows an error.
@@ -70,7 +120,7 @@ public class MapLoadManager : MonoBehaviour
 
     public void LoadMap(string json)
     {
-        // string json = (string)GameAndMapSettings.roomOptions.CustomRoomProperties["MapJSON"];
+        ClearMap();
 
         MapData data = JsonUtility.FromJson<MapData>(json);
 
@@ -83,22 +133,18 @@ public class MapLoadManager : MonoBehaviour
             if (data.tiles[i] == "0")
             {
                 Instantiate(_toggle, positionAdjustedForGrid, Quaternion.identity);
-                // PhotonNetwork.InstantiateRoomObject("Toggle", positionAdjustedForGrid, Quaternion.identity, 0);
             }
             else if (data.tiles[i] == "1")
             {
                 Instantiate(_toggle, positionAdjustedForGrid, transform.rotation * Quaternion.Euler(0f, 0f, 90f));
-                // PhotonNetwork.InstantiateRoomObject("Toggle", positionAdjustedForGrid, transform.rotation * Quaternion.Euler(0f, 0f, 90f));
             }
             else if (data.tiles[i] == "2")
             {
                 Instantiate(_startPoint, positionAdjustedForGrid, Quaternion.identity);
-                // PhotonNetwork.InstantiateRoomObject("StartPoint", positionAdjustedForGrid, Quaternion.identity, 0);
             }
             else if (data.tiles[i] == "3")
             {
                 Instantiate(_endPoint, positionAdjustedForGrid, Quaternion.identity);
-                //   PhotonNetwork.InstantiateRoomObject("EndPoint", positionAdjustedForGrid, Quaternion.identity, 0);
             }
             else if (data.tiles[i] == "4")
             {
@@ -106,6 +152,22 @@ public class MapLoadManager : MonoBehaviour
             }
         }
     }
+
+    public void ClearMap()
+    {
+        string[] tagsToClear = { "Toggle", "EndPoint", "StartPoint", "Blocker" };
+
+        foreach (string tag in tagsToClear)
+        {
+            GameObject[] objects = GameObject.FindGameObjectsWithTag(tag);
+
+            foreach (GameObject obj in objects)
+            {
+                Destroy(obj);
+            }
+        }
+    }
+
 }
 
 public class MapData

@@ -77,21 +77,4 @@ public class ToggleBehaviour : MonoBehaviour
             transform.SetParent(null); // detach from chain
         }
     }
-
-    public void ClearMap()
-    {
-        string[] tagsToClear = { "Toggle", "EndPoint", "StartPoint", "Blocker" };
-
-        foreach (string tag in tagsToClear)
-        {
-            GameObject[] objects = GameObject.FindGameObjectsWithTag(tag);
-
-            foreach (GameObject obj in objects)
-            {
-                Destroy(obj);
-            }
-        }
-    }
-
-
 }
