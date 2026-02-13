@@ -6,6 +6,8 @@ TagManager:
   tags:
   - StartPoint
   - Toggle
+  - EndPoint
+  - Blocker
   layers:
   - Default
   - TransparentFX

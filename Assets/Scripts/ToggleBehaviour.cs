@@ -15,7 +15,6 @@ public class ToggleBehaviour : MonoBehaviour
         _sprite = GetComponent<SpriteRenderer>();
         _startPoint = GameObject.FindWithTag("StartPoint").GetComponent<CircleCollider2D>();
         _originalParent = transform.parent;
-
     }
 
     private void OnMouseOver()
@@ -78,5 +77,21 @@ public class ToggleBehaviour : MonoBehaviour
             transform.SetParent(null); // detach from chain
         }
     }
+
+    public void ClearMap()
+    {
+        string[] tagsToClear = { "Toggle", "EndPoint", "StartPoint", "Blocker" };
+
+        foreach (string tag in tagsToClear)
+        {
+            GameObject[] objects = GameObject.FindGameObjectsWithTag(tag);
+
+            foreach (GameObject obj in objects)
+            {
+                Destroy(obj);
+            }
+        }
+    }
+
 
 }
