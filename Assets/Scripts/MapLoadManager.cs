@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-
+using UnityEngine.SceneManagement;
+using System.ComponentModel;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine.SceneManagement;
 
 public class MapLoadManager : MonoBehaviour
 {
@@ -25,13 +25,11 @@ public class MapLoadManager : MonoBehaviour
     private GameObject _endPoint;
     [SerializeField]
     private GameObject _blocker;
-    [SerializeField]
-    private Transform _mapRoot;
 
     public void Start()
     {
-        AssignMapName("test2");
-        // Do not auto-load an empty map JSON on start.
+        //   AssignMapName("test2");
+        //  LoadMap();
     }
     public void AssignMapName(string mapName)
     {
@@ -40,11 +38,7 @@ public class MapLoadManager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        LoadMap();
-    }
-    public void LoadMap()
-    {
-        // Reserved: runtime or scene-load triggered map loading can be implemented here.
+        //  LoadMap();
     }
 
     // Called by a UI Button. Opens a file picker in the Editor; in builds shows an error.
@@ -61,7 +55,8 @@ public class MapLoadManager : MonoBehaviour
         try
         {
             string json = File.ReadAllText(path);
-            LoadMapFromJson(json);
+            Debug.Log("Map JSON content: " + json);
+            LoadMap(json);
             Debug.Log("Loaded map from: " + path);
         }
         catch (System.Exception ex)
@@ -73,88 +68,46 @@ public class MapLoadManager : MonoBehaviour
 #endif
     }
 
-    // Parse JSON and instantiate map objects.
-    public void LoadMapFromJson(string json)
+    public void LoadMap(string json)
     {
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogWarning("Empty JSON provided to LoadMapFromJson.");
-            return;
-        }
+        // string json = (string)GameAndMapSettings.roomOptions.CustomRoomProperties["MapJSON"];
 
         MapData data = JsonUtility.FromJson<MapData>(json);
-        if (data == null || data.tiles == null || data.positions == null)
-        {
-            Debug.LogError("Invalid map JSON.");
-            return;
-        }
-
-        ClearMap();
 
         for (int i = 0; i < data.tiles.Count; i++)
         {
             Vector3 positionAdjustedForGrid = new Vector3(data.positions[i].x + 0.5f, data.positions[i].y + 0.5f, 0);
 
+            Debug.Log($"Instantiating {data.tiles[i]} at {positionAdjustedForGrid}");
 
             if (data.tiles[i] == "0")
             {
-                if (_toggle != null)
-                    Instantiate(_toggle, positionAdjustedForGrid, Quaternion.identity, _mapRoot);
+                Instantiate(_toggle, positionAdjustedForGrid, Quaternion.identity);
+                // PhotonNetwork.InstantiateRoomObject("Toggle", positionAdjustedForGrid, Quaternion.identity, 0);
             }
             else if (data.tiles[i] == "1")
             {
-                if (_toggle != null)
-                    Instantiate(_toggle, positionAdjustedForGrid, transform.rotation * Quaternion.Euler(0f, 0f, 90f), _mapRoot);
+                Instantiate(_toggle, positionAdjustedForGrid, transform.rotation * Quaternion.Euler(0f, 0f, 90f));
+                // PhotonNetwork.InstantiateRoomObject("Toggle", positionAdjustedForGrid, transform.rotation * Quaternion.Euler(0f, 0f, 90f));
             }
             else if (data.tiles[i] == "2")
             {
-                if (_startPoint != null)
-                    Instantiate(_startPoint, positionAdjustedForGrid, Quaternion.identity, _mapRoot);
+                Instantiate(_startPoint, positionAdjustedForGrid, Quaternion.identity);
+                // PhotonNetwork.InstantiateRoomObject("StartPoint", positionAdjustedForGrid, Quaternion.identity, 0);
             }
             else if (data.tiles[i] == "3")
             {
-                if (_endPoint != null)
-                    Instantiate(_endPoint, positionAdjustedForGrid, Quaternion.identity, _mapRoot);
+                Instantiate(_endPoint, positionAdjustedForGrid, Quaternion.identity);
+                //   PhotonNetwork.InstantiateRoomObject("EndPoint", positionAdjustedForGrid, Quaternion.identity, 0);
             }
             else if (data.tiles[i] == "4")
             {
-                if (_blocker != null)
-                    Instantiate(_blocker, positionAdjustedForGrid, Quaternion.identity, _mapRoot);
+                Instantiate(_blocker, positionAdjustedForGrid, Quaternion.identity);
             }
-        }
-    }
-
-    private void EnsureMapRoot()
-    {
-        if (_mapRoot != null) return;
-
-        var found = GameObject.Find("MapRoot");
-        if (found != null)
-        {
-            _mapRoot = found.transform;
-            return;
-        }
-
-        var go = new GameObject("MapRoot");
-        go.transform.SetParent(this.transform, false);
-        _mapRoot = go.transform;
-    }
-
-    private void ClearMap()
-    {
-        EnsureMapRoot();
-        for (int i = _mapRoot.childCount - 1; i >= 0; i--)
-        {
-            var child = _mapRoot.GetChild(i).gameObject;
-            if (Application.isPlaying)
-                Destroy(child);
-            else
-                DestroyImmediate(child);
         }
     }
 }
 
-[System.Serializable]
 public class MapData
 {
     public string name;
