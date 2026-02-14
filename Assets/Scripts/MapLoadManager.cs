@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.SceneManagement;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -21,6 +22,11 @@ public class MapLoadManager : MonoBehaviour
     private GameObject _endPoint;
     [SerializeField]
     private GameObject _blocker;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern void OpenMapFilePicker();
+#endif
 
     public void Start()
     {
@@ -91,7 +97,7 @@ public class MapLoadManager : MonoBehaviour
     {
     }
 
-    // Called by a UI Button. Opens a file picker in the Editor; in builds shows an error.
+    // Called by a UI Button. Opens a file picker in the Editor and in WebGL builds.
     public void SelectMapFile()
     {
 #if UNITY_EDITOR
@@ -113,9 +119,32 @@ public class MapLoadManager : MonoBehaviour
         {
             Debug.LogError("Failed to read map file: " + ex.Message);
         }
+#elif UNITY_WEBGL && !UNITY_EDITOR
+        // In WebGL, call into a JavaScript plugin to open the browser file picker.
+        try
+        {
+            OpenMapFilePicker();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("Failed to open WebGL file picker: " + ex.Message);
+        }
 #else
-        Debug.LogError("File picker is only available in the Unity Editor. Add a runtime file browser plugin for builds.");
+        Debug.LogError("File picker is only implemented for the Unity Editor and WebGL builds.");
 #endif
+    }
+
+    // Called from JavaScript (WebGL) with the selected file's JSON contents.
+    public void OnMapFileSelected(string json)
+    {
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogError("OnMapFileSelected received empty JSON.");
+            return;
+        }
+
+        Debug.Log("OnMapFileSelected received JSON: " + json);
+        LoadMap(json);
     }
 
     public void LoadMap(string json)
