@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EndPointBehaviour : MonoBehaviour
 {
     private SpriteRenderer _sprite;
+
     private Color _connectedColor = new Color(1, 1, 0, 1);
     private Color _disconnectedColor = new Color(1, 1, 1, 1);
 
@@ -15,27 +14,36 @@ public class EndPointBehaviour : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        StartPoint startPoint = collision.transform.GetComponentInParent<StartPoint>();
+        // Allow endpoint to join an existing chain
+        StartPoint startPoint =
+            collision.transform.GetComponentInParent<StartPoint>();
 
         if (startPoint != null)
         {
-            _sprite.color = _connectedColor;
+            transform.SetParent(collision.transform);
         }
+
+        ConnectionManager.Instance.MarkDirty();
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        // Re-check connection after physics updates
-        Invoke(nameof(CheckConnection), 0.02f);
+        ConnectionManager.Instance.MarkDirty();
     }
 
-    private void CheckConnection()
+    // Called by ConnectionManager
+    public void CheckConnection()
     {
         StartPoint startPoint = GetComponentInParent<StartPoint>();
 
-        if (startPoint == null)
-        {
+        if (startPoint != null)
+            _sprite.color = _connectedColor;
+        else
             _sprite.color = _disconnectedColor;
-        }
+    }
+
+    private void RefreshAll()
+    {
+        ConnectionManager.Instance.RefreshConnections();
     }
 }
