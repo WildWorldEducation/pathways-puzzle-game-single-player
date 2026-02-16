@@ -1,10 +1,6 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a id="readme-top"></a>
-
 <!-- PROJECT LOGO -->
 <div>
-  
-  <h3>Strategic Thinking Teaching Game</h3>
+  <h1>Strategic Thinking Teaching Game</h1>
 
   <p>
     design owned by Devon Golding of Conscious Coding
