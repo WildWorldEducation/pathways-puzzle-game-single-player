@@ -18,15 +18,6 @@
 
 
 <!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a></li>
-       <a href="#built-with">Built With</a></li> 
-  </ol>
-</details>
-
 
 
 <!-- ABOUT THE PROJECT -->
@@ -39,13 +30,8 @@ Includes:
 * Single player mode
 * 2 Player competive mode (multiplayer)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-### Built With
+## Built With
 
 * Unity
 * PUN
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
